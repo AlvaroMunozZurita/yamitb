@@ -1,0 +1,1563 @@
+alerto
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Servicios Comunitarios para Tierra Blanca</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style id="app-style">
+        :root {
+    --primary: #800000;
+    --secondary: #c9a646;
+    --light-secondary: #e7d9a8;
+    --background: #ffffff;
+    --text: #333333;
+    --light-gray: #f5f5f5;
+    --medium-gray: #e0e0e0;
+    --dark-gray: #909090;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text);
+    background-color: var(--background);
+}
+
+.primary-bg {
+    background-color: var(--primary);
+}
+
+.secondary-bg {
+    background-color: var(--secondary);
+}
+
+.light-secondary-bg {
+    background-color: var(--light-secondary);
+}
+
+.primary-text {
+    color: var(--primary);
+}
+
+.secondary-text {
+    color: var(--secondary);
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #600000;
+}
+
+.btn-secondary {
+    background-color: var(--secondary);
+    color: white;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #a88b3a;
+}
+
+.btn-outline {
+    border: 2px solid var(--primary);
+    color: white;
+    background-color: transparent;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.service-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.service-icon {
+    font-size: 2rem;
+    padding: 20px;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-pending {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+.status-progress {
+    background-color: #dbeafe;
+    color: #3b82f6;
+}
+
+.status-resolved {
+    background-color: #d1fae5;
+    color: #10b981;
+}
+
+.chat-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.chat-bubble {
+    padding: 10px 15px;
+    border-radius: 18px;
+    margin-bottom: 10px;
+    max-width: 80%;
+}
+
+.chat-bubble.user {
+    background-color: var(--primary);
+    color: white;
+    border-bottom-right-radius: 5px;
+    margin-left: auto;
+}
+
+.chat-bubble.admin {
+    background-color: var(--light-gray);
+    color: var(--text);
+    border-bottom-left-radius: 5px;
+}
+
+.map-container {
+    height: 300px;
+    width: 100%;
+    border-radius: 12px;
+}
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    color: var(--dark-gray);
+    transition: color 0.3s ease;
+}
+
+.bottom-nav-item.active {
+    color: var(--primary);
+}
+
+.side-nav {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: white;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    padding-top: 80px;
+    z-index: 900;
+    transition: transform 0.3s ease;
+}
+
+.side-nav-item {
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    color: var(--text);
+    transition: all 0.3s ease;
+}
+
+.side-nav-item:hover,
+.side-nav-item.active {
+    background-color: var(--light-gray);
+    color: var(--primary);
+    border-left: 4px solid var(--primary);
+}
+
+.side-nav-item i {
+    margin-right: 15px;
+    width: 24px;
+    text-align: center;
+}
+
+.page-content {
+    transition: margin-left 0.3s ease;
+}
+
+@media (min-width: 768px) {
+    .page-content {
+        margin-left: 250px;
+    }
+
+    .bottom-nav {
+        display: none;
+    }
+}
+
+@media (max-width: 767px) {
+
+    .side-nav {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+    }
+
+    .side-nav.open {
+        transform: translateX(0);
+    }
+
+    .page-content {
+        margin-left: 0;
+        padding-bottom: 80px;
+    }
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+#municipal-logo {
+    height: 40px;
+    width: auto;
+    margin-right: 12px;
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.7));
+}
+
+@media (max-width: 767px) {
+    #municipal-logo {
+        height: 32px;
+        margin-right: 8px;
+    }
+
+    header h1 {
+        font-size: 1.125rem;
+    }
+}
+
+@media (min-width: 768px) {
+    #municipal-logo {
+        height: 48px;
+        margin-right: 16px;
+    }
+
+    header h1 {
+        font-size: 1.25rem;
+        flex: 1;
+    }
+}
+
+/* TARJETAS CON IMAGEN */
+.card-bg {
+    width: 100%;
+    min-height: 300px;
+
+    border-radius: 12px;
+    padding: 20px;
+    margin: 10px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    position: relative;
+    overflow: hidden;
+    color: white;
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Capa oscura encima de imagen */
+.card-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1;
+}
+
+/* Mantener contenido visible */
+.card-bg>* {
+    position: relative;
+    z-index: 2;
+}
+
+.electricidad-bg {
+    background-image: url('img/electricidad-descubrimiento-historia.jpg');
+}
+
+.agua-bg {
+    background-image: url('img/agua.jpg');
+}
+
+.drenaje-bg {
+    background-image: url('img/drenage.jpg');
+}
+    </style>
+</head>
+
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="fixed inset-0 bg-white flex flex-col justify-center items-center z-50">
+        <div class="w-32 h-32 rounded-full primary-bg flex items-center justify-center mb-6">
+            <i class="fas fa-city text-white text-4xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold mb-2">Servicios Comunitarios</h1>
+        <h2 class="text-xl mb-8">para Tierra Blanca</h2>
+        <div class="w-16 h-1 bg-gray-300 relative overflow-hidden rounded-full">
+            <div id="loading-bar" class="h-full primary-bg absolute left-0 top-0 w-0"></div>
+        </div>
+    </div>
+
+    <!-- Authentication Screen -->
+    <div id="auth-screen" class="min-h-screen py-12 px-4 hidden">
+        <div class="max-w-md mx-auto">
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 rounded-full primary-bg flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-city text-white text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold primary-text">Servicios Comunitarios</h1>
+                <p class="text-gray-600">para Tierra Blanca</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex border-b border-gray-200 mb-4">
+                    <button id="login-tab" class="py-2 px-4 font-medium border-b-2 border-primary text-primary">
+                        Iniciar Sesión
+                    </button>
+                    <button id="register-tab" class="py-2 px-4 font-medium text-gray-500">
+                        Registrarse
+                    </button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="login-form">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="login-email">Correo
+                            Electrónico</label>
+                        <input type="email" id="login-email" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            placeholder="ejemplo@correo.com" required />
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-medium mb-2"
+                            for="login-password">Contraseña</label>
+                        <input type="password" id="login-password"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="••••••••"
+                            required />
+                        <a href="javascript:void(0)" class="text-sm text-primary mt-1 inline-block">¿Olvidaste tu
+                            contraseña?</a>
+                    </div>
+                    <button type="submit" class="w-full btn-primary">Iniciar Sesión</button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="register-form" class="hidden">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="register-name">Nombre
+                            Completo</label>
+                        <input type="text" id="register-name" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            placeholder="Juan Pérez" required />
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="register-email">Correo
+                            Electrónico</label>
+                        <input type="email" id="register-email"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="ejemplo@correo.com"
+                            required />
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2"
+                            for="register-phone">Teléfono</label>
+                        <input type="tel" id="register-phone" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            placeholder="(123) 456-7890" required />
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2"
+                            for="register-password">Contraseña</label>
+                        <input type="password" id="register-password"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="••••••••"
+                            required />
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-medium mb-2"
+                            for="register-confirm-password">Confirmar Contraseña</label>
+                        <input type="password" id="register-confirm-password"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="••••••••"
+                            required />
+                    </div>
+                    <button type="submit" class="w-full btn-primary">Registrarse</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="hidden">
+        <!-- Header -->
+        <header
+            class="primary-bg text-white p-4 shadow-md flex justify-between items-center fixed top-0 left-0 right-0 z-30">
+            <div class="flex items-center">
+                <button id="menu-toggle"
+    class="mr-3 flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/20 transition">
+    <i class="fas fa-bars text-2xl"></i>
+</button>
+                <!-- Update the CSS for the municipal-logo in the style section -->
+                <img id="municipal-logo" src="data:image/png;base64,..." alt="Logotipo Municipal" />
+                <h1 class="font-bold text-lg">Servicios Comunitarios</h1>
+            </div>
+            <button id="notifications-btn" class="relative">
+                <i class="far fa-bell text-xl"></i>
+                <span
+                    class="absolute top-0 right-0 bg-red-500 text-xs w-4 h-4 flex items-center justify-center rounded-full">2</span>
+            </button>
+        </header>
+
+        <!-- Side Navigation (for tablets and desktop) -->
+        <nav class="side-nav hidden md:block">
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gray-300 overflow-hidden mr-3">
+                        <img src="https://images.unsplash.com/photo-1586006552138-ea18985ab492?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NjkwMjR8MHwxfHNlYXJjaHwyfHxVc3VhcmlvfGVufDB8fHx8MTc3NjEzNzUwOXww&ixlib=rb-4.1.0&q=80&w=1080"
+                            alt="Usuario" class="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                        <h3 class="font-medium">Carlos Méndez</h3>
+                        <p class="text-xs text-gray-500">ciudadano</p>
+                    </div>
+                </div>
+            </div>
+            <a href="javascript:void(0)" data-page="home" class="side-nav-item active">Inicio</a>
+            <a href="javascript:void(0)" data-page="requests" class="side-nav-item">Mis Solicitudes</a>
+            <a href="javascript:void(0)" data-page="profile" class="side-nav-item">Perfil</a>
+            <a href="javascript:void(0)" id="logout-btn" class="side-nav-item text-red-500 mt-auto"><i
+                    class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </nav>
+
+<!-- Main Content -->
+<main class="page-content pt-16">
+
+    <div id="home-page" class="p-4">
+        <h2 class="text-xl font-bold mb-4">Servicios Disponibles</h2>
+
+        <!-- CONTENEDOR EN BARRA -->
+<div class="flex flex-col gap-6">
+
+    <!-- Electricidad -->
+    <div class="card service-card card-bg electricidad-bg p-4">
+        <div class="service-icon primary-bg text-white">
+            <i class="fas fa-bolt"></i>
+        </div>
+
+        <h3 class="text-lg font-bold text-center mb-4">Electricidad</h3>
+
+        <p class="text-gray-200 mb-6 text-center">
+            Reportes y solicitudes relacionadas con el servicio eléctrico
+        </p>
+
+        <div class="grid grid-cols-2 gap-3">
+            <button class="btn-primary request-btn">Solicitud</button>
+            <button class="btn-outline report-btn">Reporte</button>
+        </div>
+    </div>
+
+    <!-- Agua -->
+    <div class="card service-card card-bg agua-bg p-4">
+        <div class="service-icon primary-bg text-white">
+            <i class="fas fa-tint"></i>
+        </div>
+
+        <h3 class="text-lg font-bold text-center mb-4">Agua</h3>
+
+        <p class="text-gray-200 mb-6 text-center">
+            Reportes y solicitudes relacionadas con el servicio de agua
+        </p>
+
+        <div class="grid grid-cols-2 gap-3">
+            <button class="btn-primary request-btn">Solicitud</button>
+            <button class="btn-outline report-btn">Reporte</button>
+        </div>
+    </div>
+
+    <!-- Drenaje -->
+    <div class="card service-card card-bg drenaje-bg p-4">
+        <div class="service-icon primary-bg text-white">
+            <i class="fas fa-water"></i>
+        </div>
+
+        <h3 class="text-lg font-bold text-center mb-4">Drenaje</h3>
+
+        <p class="text-gray-200 mb-6 text-center">
+            Reportes y solicitudes relacionadas con el servicio de drenaje
+        </p>
+
+        <div class="grid grid-cols-2 gap-3">
+            <button class="btn-primary request-btn">Solicitud</button>
+            <button class="btn-outline report-btn">Reporte</button>
+        </div>
+    </div>
+
+</div>
+
+                <h2 class="text-xl font-bold mt-8 mb-4">Últimas Solicitudes</h2>
+                <div class="card bg-white p-4">
+                    <div class="space-y-4">
+                        <div class="border-b border-gray-200 pb-3">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-medium">Fuga de agua en Calle Morelos</h3>
+                                <span class="status-badge status-progress">En Progreso</span>
+                            </div>
+                            <p class="text-sm text-gray-600">Reporte de Agua • 24/04/2025</p>
+                        </div>
+                        <div class="border-b border-gray-200 pb-3">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-medium">Solicitud de instalación eléctrica</h3>
+                                <span class="status-badge status-pending">Pendiente</span>
+                            </div>
+                            <p class="text-sm text-gray-600">Solicitud de Electricidad • 22/04/2025</p>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-medium">Problemas con drenaje</h3>
+                                <span class="status-badge status-resolved">Resuelto</span>
+                            </div>
+                            <p class="text-sm text-gray-600">Reporte de Drenaje • 18/04/2025</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h2 class="text-xl font-bold mb-4">Mapa de Reportes Activos</h2>
+                    <div id="home-map" class="map-container"></div>
+                </div>
+            </div>
+
+            <!-- Requests Page -->
+            <div id="requests-page" class="p-4 hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Mis Solicitudes</h2>
+                    <div class="flex">
+                        <button class="px-3 py-1 rounded-l-lg bg-gray-200 text-sm font-medium" id="filter-all">
+                            Todos
+                        </button>
+                        <button class="px-3 py-1 bg-gray-200 text-sm font-medium" id="filter-pending">
+                            Pendientes
+                        </button>
+                        <button class="px-3 py-1 bg-gray-200 text-sm font-medium" id="filter-progress">
+                            En Progreso
+                        </button>
+                        <button class="px-3 py-1 rounded-r-lg bg-gray-200 text-sm font-medium" id="filter-resolved">
+                            Resueltos
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Request Card 1 -->
+                    <div class="card bg-white p-4 request-item cursor-pointer" data-id="1">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold">Fuga de agua en Calle Morelos</h3>
+                                <p class="text-sm text-gray-600 mt-1">Reporte de Agua • 24/04/2025</p>
+                                <p class="text-sm text-gray-600 mt-2 line-clamp-2">Hay una fuga de agua importante en la
+                                    esquina de la calle que está causando problemas...</p>
+                            </div>
+                            <span class="status-badge status-progress ml-2">En Progreso</span>
+                        </div>
+                    </div>
+
+                    <!-- Request Card 2 -->
+                    <div class="card bg-white p-4 request-item cursor-pointer" data-id="2">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold">Solicitud de instalación eléctrica</h3>
+                                <p class="text-sm text-gray-600 mt-1">Solicitud de Electricidad • 22/04/2025</p>
+                                <p class="text-sm text-gray-600 mt-2 line-clamp-2">Necesito una instalación de conexión
+                                    eléctrica para mi nueva vivienda ubicada en...</p>
+                            </div>
+                            <span class="status-badge status-pending ml-2">Pendiente</span>
+                        </div>
+                    </div>
+
+                    <!-- Request Card 3 -->
+                    <div class="card bg-white p-4 request-item cursor-pointer" data-id="3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold">Problemas con drenaje</h3>
+                                <p class="text-sm text-gray-600 mt-1">Reporte de Drenaje • 18/04/2025</p>
+                                <p class="text-sm text-gray-600 mt-2 line-clamp-2">El drenaje de la calle principal está
+                                    tapado y causa inundaciones cuando llueve...</p>
+                            </div>
+                            <span class="status-badge status-resolved ml-2">Resuelto</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profile-page" class="p-4 hidden">
+                <div class="card bg-white p-4 mb-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-20 h-20 rounded-full bg-gray-300 overflow-hidden mr-4">
+                            <img src="https://images.unsplash.com/photo-1586006552138-ea18985ab492?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NjkwMjR8MHwxfHNlYXJjaHwyfHxVc3VhcmlvfGVufDB8fHx8MTc3NjEzNzUwOXww&ixlib=rb-4.1.0&q=80&w=1080"
+                                alt="Usuario" class="w-full h-full object-cover" id="profile-image" />
+                            <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity"
+                                id="change-photo">
+                                <i class="fas fa-camera text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold">Carlos Méndez</h2>
+                            <p class="text-gray-600">ciudadano</p>
+                        </div>
+                    </div>
+
+                    <button class="btn-outline w-full" id="edit-profile-btn">
+                        <i class="fas fa-edit mr-2"></i> Editar Perfil
+                    </button>
+                </div>
+
+                <div class="card bg-white p-4">
+                    <h3 class="font-bold text-lg mb-4">Información Personal</h3>
+
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="text-gray-500">Correo</div>
+                            <div class="col-span-2">carlos.mendez@ejemplo.com</div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="text-gray-500">Teléfono</div>
+                            <div class="col-span-2">+52 555 123 4567</div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="text-gray-500">Dirección</div>
+                            <div class="col-span-2">Calle Hidalgo #123, Col. Centro, Tierra Blanca</div>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-4">
+                            <button class="text-primary font-medium" id="change-password-btn">
+                                <i class="fas fa-lock mr-2"></i> Cambiar Contraseña
+                            </button>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-4">
+                            <button class="text-red-500 font-medium" id="logout-btn-profile">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Request Detail Page -->
+            <div id="request-detail-page" class="p-4 hidden">
+                <button class="flex items-center text-gray-600 mb-4" id="back-to-requests">
+                    <i class="fas fa-arrow-left mr-2"></i> Volver a solicitudes
+                </button>
+
+                <div class="card bg-white p-4 mb-4">
+                    <div class="flex justify-between items-start mb-4">
+                        <h2 class="text-xl font-bold" id="detail-title">Fuga de agua en Calle Morelos</h2>
+                        <span class="status-badge status-progress" id="detail-status">En Progreso</span>
+                    </div>
+
+                    <div class="text-sm text-gray-600 mb-4" id="detail-meta">Reporte de Agua • 24/04/2025</div>
+
+                    <div class="mb-4">
+                        <h3 class="font-medium mb-2">Descripción:</h3>
+                        <p class="text-gray-700" id="detail-description">Hay una fuga de agua importante en la esquina
+                            de la calle Morelos y Juárez que está causando problemas en el pavimento. El agua se está
+                            acumulando y está causando daños a las casas cercanas. Es necesario una reparación urgente.
+                        </p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h3 class="font-medium mb-2">Imagen:</h3>
+                        <div class="w-full rounded-lg overflow-hidden bg-gray-200 h-48">
+                            <img src="https://images.unsplash.com/photo-1693045181676-57199422ee66?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NjkwMjR8MHwxfHNlYXJjaHwyN3x8SW1hZ2VuJTIwZGVsJTIwcmVwb3J0ZXxlbnwwfHx8fDE3NzYxMzc1NTJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                                alt="Imagen del reporte" class="w-full h-full object-cover" id="detail-image" />
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h3 class="font-medium mb-2">Ubicación:</h3>
+                        <div id="detail-map" class="map-container"></div>
+                    </div>
+                </div>
+
+                <div class="card bg-white p-4">
+                    <h3 class="font-medium mb-4">Chat con Personal de Servicio:</h3>
+
+                    <div class="chat-container mb-4" id="chat-messages">
+                        <div class="chat-bubble admin">
+                            <div class="text-xs text-gray-500 mb-1">Soporte • 24/04/2025 10:30</div>
+                            <div>
+                                Hemos recibido su reporte y ya se ha asignado un técnico para revisar
+                                la fuga. Gracias por reportar el problema.
+                            </div>
+                        </div>
+
+                        <div class="chat-bubble user">
+                            <div class="text-xs text-gray-300 mb-1">Tú • 24/04/2025 12:45</div>
+                            <div>
+                                Gracias por la respuesta. La fuga sigue empeorando, ¿saben
+                                aproximadamente cuándo llegaría el técnico?
+                            </div>
+                        </div>
+
+                        <div class="chat-bubble admin">
+                            <div class="text-xs text-gray-500 mb-1">Técnico • 24/04/2025 13:15</div>
+                            <div>
+                                Buenas tardes. Soy el técnico asignado a su caso. Estaré llegando
+                                en aproximadamente 30 minutos para evaluar la situación.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex">
+                        <input type="text" class="flex-grow border border-gray-300 rounded-l-md px-4 py-2"
+                            placeholder="Escribe un mensaje..." id="chat-input" />
+                        <button class="btn-primary rounded-l-none" id="send-message">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation (for mobile) -->
+        <nav class="bottom-nav grid grid-cols-3 md:hidden">
+            <a href="javascript:void(0)" data-page="home" class="bottom-nav-item active">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs">Inicio</span>
+            </a>
+            <a href="javascript:void(0)" data-page="requests" class="bottom-nav-item">
+                <i class="fas fa-clipboard-list text-xl"></i>
+                <span class="text-xs">Solicitudes</span>
+            </a>
+            <a href="javascript:void(0)" data-page="profile" class="bottom-nav-item">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-xs">Perfil</span>
+            </a>
+        </nav>
+
+        <!-- Floating Action Button (for mobile) -->
+        <button
+            class="fixed right-6 bottom-20 w-14 h-14 rounded-full primary-bg text-white flex items-center justify-center shadow-lg z-20 md:hidden"
+            id="new-request-fab">
+            <i class="fas fa-plus text-xl"></i>
+        </button>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Form Modal -->
+    <div class="modal-overlay" id="form-modal">
+        <div class="modal-content p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold" id="form-title">Nuevo Reporte</h2>
+                <button class="text-gray-500 text-2xl close-modal" aria-label="Cerrar modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="report-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="form-title-input">Título</label>
+                    <input type="text" id="form-title-input" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        placeholder="Ejemplo: Fuga de agua en Calle Principal" required />
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2"
+                        for="form-description">Descripción</label>
+                    <textarea id="form-description" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="4"
+                        placeholder="Describa detalladamente el problema o solicitud..." required></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Categoría</label>
+                    <select id="form-category" class="w-full px-3 py-2 border border-gray-300 rounded-md" disabled>
+                        <option value="electricity">Electricidad</option>
+                        <option value="water">Agua</option>
+                        <option value="drainage">Drenaje</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Tipo</label>
+                    <select id="form-type" class="w-full px-3 py-2 border border-gray-300 rounded-md" disabled>
+                        <option value="request">Solicitud</option>
+                        <option value="report">Reporte</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Imagen (opcional)</label>
+                    <div class="border border-dashed border-gray-300 rounded-md p-4 text-center cursor-pointer"
+                        id="image-upload-area">
+                        <i class="fas fa-camera text-gray-400 text-2xl mb-2"></i>
+                        <p class="text-sm text-gray-500">Haz clic para subir una imagen</p>
+                        <p class="text-xs text-gray-400">Tamaño máximo: 25MB</p>
+                    </div>
+                    <input type="file" id="form-image" class="hidden" accept="image/*" />
+                    <div id="image-preview" class="mt-2 hidden">
+                        <div class="relative">
+                            <img src="" alt="Vista previa" class="w-full h-32 object-cover rounded-md" />
+                            <button type="button"
+                                class="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center"
+                                id="remove-image" aria-label="Eliminar imagen">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Ubicación</label>
+                    <div class="flex items-center mb-2">
+                        <button type="button" class="btn-outline py-2 flex-grow flex justify-center items-center"
+                            id="detect-location">
+                            <i class="fas fa-location-arrow mr-2"></i> Detectar mi ubicación
+                        </button>
+                    </div>
+                    <button type="button" class="btn-outline w-full py-2" id="select-location">
+                        <i class="fas fa-map-marker-alt mr-2"></i> Seleccionar en mapa
+                    </button>
+                    <div id="location-preview" class="mt-2 hidden">
+                        <div class="text-sm text-gray-600 mb-1">Ubicación seleccionada:</div>
+                        <div class="flex items-center">
+                            <i class="fas fa-map-marker-alt text-primary mr-2"></i>
+                            <span id="location-text">Calle Morelos #123, Col. Centro</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button type="button" class="px-4 py-2 border border-gray-300 rounded-md close-modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">Enviar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Location Modal -->
+    <div class="modal-overlay" id="location-modal">
+        <div class="modal-content p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Seleccionar Ubicación</h2>
+                <button class="text-gray-500 text-2xl close-modal" aria-label="Cerrar modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div id="location-map" class="h-80 w-full rounded-md mb-4"></div>
+
+            <p class="text-sm text-gray-600 mb-4">Mueva el marcador para seleccionar la ubicación exacta del reporte o
+                solicitud.</p>
+
+            <div class="flex justify-end space-x-3">
+                <button class="px-4 py-2 border border-gray-300 rounded-md close-modal"
+                    aria-label="Cancelar">Cancelar</button>
+                <button class="btn-primary" id="confirm-location">Confirmar Ubicación</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="edit-profile-modal">
+        <div class="modal-content p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Editar Perfil</h2>
+                <button class="text-gray-500 text-2xl close-modal" aria-label="Cerrar modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="edit-profile-form">
+                <div class="mb-4 text-center">
+                    <div class="w-24 h-24 rounded-full bg-gray-300 overflow-hidden mx-auto mb-2 relative">
+                        <img src="https://images.unsplash.com/photo-1586006552138-ea18985ab492?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NjkwMjR8MHwxfHNlYXJjaHwyfHxVc3VhcmlvfGVufDB8fHx8MTc3NjEzNzUwOXww&ixlib=rb-4.1.0&q=80&w=1080"
+                            alt="Usuario" class="w-full h-full object-cover" id="profile-image" />
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity"
+                            id="change-photo">
+                            <i class="fas fa-camera text-white"></i>
+                        </div>
+                    </div>
+                    <input type="file" id="profile-photo-input" class="hidden" accept="image/*"
+                        aria-label="Subir foto de perfil" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="edit-name">Nombre Completo</label>
+                    <input type="text" id="edit-name" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        value="Carlos Méndez" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="edit-email">Correo
+                        Electrónico</label>
+                    <input type="email" id="edit-email" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        value="carlos.mendez@ejemplo.com" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="edit-phone">Teléfono</label>
+                    <input type="tel" id="edit-phone" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        value="+52 555 123 4567" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="edit-address">Dirección</label>
+                    <input type="text" id="edit-address" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        value="Calle Hidalgo #123, Col. Centro, Tierra Blanca" />
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button type="button" class="px-4 py-2 border border-gray-300 rounded-md close-modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal-overlay" id="change-password-modal">
+        <div class="modal-content p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Cambiar Contraseña</h2>
+                <button class="text-gray-500 text-2xl close-modal" aria-label="Cerrar modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="change-password-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="current-password">Contraseña
+                        Actual</label>
+                    <input type="password" id="current-password"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="••••••••" required />
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="new-password">Nueva
+                        Contraseña</label>
+                    <input type="password" id="new-password" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        placeholder="••••••••" required />
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="confirm-new-password">Confirmar
+                        Nueva Contraseña</label>
+                    <input type="password" id="confirm-new-password"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="••••••••" required />
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button type="button" class="px-4 py-2 border border-gray-300 rounded-md close-modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">Cambiar Contraseña</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div class="modal-overlay" id="notifications-modal">
+        <div class="modal-content p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Notificaciones</h2>
+                <button class="text-gray-500 text-2xl close-modal" aria-label="Cerrar modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="p-3 bg-blue-50 rounded-md border-l-4 border-blue-500">
+                    <div class="flex">
+                        <div class="flex-shrink-0 text-blue-500 mr-3">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium">Su reporte ha cambiado a "En Progreso"</p>
+                            <p class="text-sm text-gray-600 mt-1">Fuga de agua en Calle Morelos • Hace 2 horas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-green-50 rounded-md border-l-4 border-green-500">
+                    <div class="flex">
+                        <div class="flex-shrink-0 text-green-500 mr-3">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium">Nuevo mensaje en su reporte</p>
+                            <p class="text-sm text-gray-600 mt-1">Problemas con drenaje • Hace 1 día</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-gray-100 rounded-md">
+                    <div class="flex">
+                        <div class="flex-shrink-0 text-gray-500 mr-3">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium">Su solicitud ha sido recibida</p>
+                            <p class="text-sm text-gray-600 mt-1">Solicitud de instalación eléctrica • Hace 3 días</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <button class="text-primary font-medium">Marcar todas como leídas</button>
+            </div>
+        </div>
+    </div>
+
+    <script id="app-script">
+        // Simulate loading
+        const loadingBar = document.getElementById('loading-bar');
+        let progress = 0;
+        const loadingInterval = setInterval(() => {
+            progress += 10;
+            loadingBar.style.width = progress + '%';
+            if (progress >= 100) {
+                clearInterval(loadingInterval);
+                setTimeout(() => {
+                    document.getElementById('splash-screen').classList.add('hidden');
+                    document.getElementById('auth-screen').classList.remove('hidden');
+                }, 500);
+            }
+        }, 200);
+
+        // Authentication Tabs
+        document.getElementById('login-tab').addEventListener('click', function () {
+            this.classList.add('border-primary', 'text-primary');
+            document.getElementById('register-tab').classList.remove('border-primary', 'text-primary');
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+        });
+
+        document.getElementById('register-tab').addEventListener('click', function () {
+            this.classList.add('border-primary', 'text-primary');
+            document.getElementById('login-tab').classList.remove('border-primary', 'text-primary');
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+        });
+
+        // Form Submissions
+        document.getElementById('login-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            // In a real app, we'd authenticate with a server here
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            initMaps();
+        });
+
+        document.getElementById('register-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            // In a real app, we'd register with a server here
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            initMaps();
+        });
+
+        // Navigation
+        const navigationItems = document.querySelectorAll('[data-page]');
+        navigationItems.forEach((item) => {
+            item.addEventListener('click', () => {
+                const page = item.getAttribute('data-page');
+
+                // Hide all pages
+                document.querySelectorAll('main > div').forEach((div) => div.classList.add('hidden'));
+
+                // Show selected page
+                document.getElementById(page + '-page').classList.remove('hidden');
+
+                // Update active state in navigation
+                document.querySelectorAll('.bottom-nav-item, .side-nav-item').forEach((navItem) => {
+                    if (navItem.getAttribute('data-page') === page) {
+                        navItem.classList.add('active');
+                    } else {
+                        navItem.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Mobile menu toggle
+        document.getElementById('menu-toggle').addEventListener('click', () => {
+            const sideNav = document.querySelector('.side-nav');
+            if (sideNav.classList.contains('open')) {
+                sideNav.classList.remove('open');
+                sideNav.classList.add('hidden');
+            } else {
+                sideNav.classList.remove('hidden');
+                sideNav.classList.add('open');
+            }
+        });
+
+        // Logout
+        document.querySelectorAll('#logout-btn, #logout-btn-profile').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                document.getElementById('app').classList.add('hidden');
+                document.getElementById('auth-screen').classList.remove('hidden');
+            });
+        });
+
+        // Request/Report buttons
+        document.querySelectorAll('.request-btn, .report-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const service = btn.getAttribute('data-service');
+                const type = btn.getAttribute('data-type');
+
+                // Set form fields based on service and type
+                document.getElementById('form-category').value = service;
+                document.getElementById('form-type').value = type;
+
+                // Update modal title
+                const serviceNames = {
+                    electricity: 'Electricidad',
+                    water: 'Agua',
+                    drainage: 'Drenaje',
+                };
+
+                const typeNames = {
+                    request: 'Solicitud',
+                    report: 'Reporte',
+                };
+
+                document.getElementById('form-title').textContent = `Nueva ${typeNames[type]} de ${serviceNames[service]}`;
+
+                // Show modal
+                document.getElementById('form-modal').classList.add('active');
+            });
+        });
+
+        // Request item click
+        document.querySelectorAll('.request-item').forEach((item) => {
+            item.addEventListener('click', () => {
+                const requestId = item.getAttribute('data-id');
+                document.querySelectorAll('main > div').forEach((div) => div.classList.add('hidden'));
+                document.getElementById('request-detail-page').classList.remove('hidden');
+                // In a real app, we'd load details based on the request ID
+                initDetailMap();
+            });
+        });
+
+        // Back button from detail page
+        document.getElementById('back-to-requests').addEventListener('click', () => {
+            document.getElementById('request-detail-page').classList.add('hidden');
+            document.getElementById('requests-page').classList.remove('hidden');
+        });
+
+        // Close modals
+        document.querySelectorAll('.close-modal').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const modal = btn.closest('.modal-overlay');
+                modal.classList.remove('active');
+            });
+        });
+
+        // Click outside modal to close
+        document.querySelectorAll('.modal-overlay').forEach((modal) => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // Notifications button
+        document.getElementById('notifications-btn').addEventListener('click', () => {
+            document.getElementById('notifications-modal').classList.add('active');
+        });
+
+        // FAB button for new request on mobile
+        document.getElementById('new-request-fab').addEventListener('click', () => {
+            // This would normally open a menu with options
+            // For this prototype, just open form modal with defaults
+            document.getElementById('form-category').value = 'electricity';
+            document.getElementById('form-type').value = 'report';
+            document.getElementById('form-title').textContent = 'Nuevo Reporte';
+            document.getElementById('form-modal').classList.add('active');
+        });
+
+       document.getElementById('report-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+
+    formData.append("titulo", document.getElementById("form-title-input").value);
+    formData.append("descripcion", document.getElementById("form-description").value);
+    formData.append("categoria", document.getElementById("form-category").value);
+    formData.append("tipo", document.getElementById("form-type").value);
+    formData.append("ubicacion", document.getElementById("location-text").textContent);
+
+    const imagen = document.getElementById("form-image").files[0];
+    if (imagen) {
+        formData.append("imagen", imagen);
+    }
+
+    try {
+        const respuesta = await fetch("guardar.php", {
+            method: "POST",
+            body: formData
+        });
+
+        const resultado = await respuesta.text();
+
+        if (resultado.includes("ok")) {
+            alert("¡Guardado en la base de datos!");
+            document.getElementById('form-modal').classList.remove('active');
+            document.getElementById("report-form").reset();
+        } else {
+            alert(resultado);
+        }
+
+    } catch (error) {
+        alert("Error de conexión con el servidor");
+        console.error(error);
+    }
+});
+
+        // Image upload
+        document.getElementById('image-upload-area').addEventListener('click', () => {
+            document.getElementById('form-image').click();
+        });
+
+        document.getElementById('form-image').addEventListener('change', () => {
+            if (document.getElementById('form-image').files && document.getElementById('form-image').files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    document.getElementById('image-preview').classList.remove('hidden');
+                    document
+                        .getElementById('image-preview')
+                        .querySelector('img').src = e.target.result;
+                };
+
+                reader.readAsDataURL(document.getElementById('form-image').files[0]);
+            }
+        });
+
+        document
+            .getElementById('remove-image')
+            .addEventListener('click', () => {
+                document.getElementById('form-image').value = '';
+                document.getElementById('image-preview').classList.add('hidden');
+            });
+
+        // Location buttons
+        document
+            .getElementById('detect-location')
+            .addEventListener('click', () => {
+                // In a real app, we'd use the Geolocation API
+                document.getElementById('location-preview').classList.remove('hidden');
+                document.getElementById('location-text').textContent =
+                    'Ubicación actual detectada';
+            });
+
+        document
+            .getElementById('select-location')
+            .addEventListener('click', () => {
+                document.getElementById('location-modal').classList.add('active');
+                setTimeout(() => {
+                    initLocationMap();
+                }, 100);
+            });
+
+        document
+            .getElementById('confirm-location')
+            .addEventListener('click', () => {
+                document.getElementById('location-modal').classList.remove('active');
+                document
+                    .getElementById('location-preview')
+                    .classList.remove('hidden');
+                document.getElementById('location-text').textContent =
+                    'Ubicación seleccionada en el mapa';
+            });
+
+        // Edit profile
+        document
+            .getElementById('edit-profile-btn')
+            .addEventListener('click', () => {
+                document.getElementById('edit-profile-modal').classList.add('active');
+            });
+
+        document
+            .getElementById('edit-profile-form')
+            .addEventListener('submit', (e) => {
+                e.preventDefault();
+                // In a real app, we'd send this data to a server
+                document
+                    .getElementById('edit-profile-modal')
+                    .classList.remove('active');
+                alert('¡Perfil actualizado con éxito!');
+            });
+
+        document
+            .getElementById('change-photo')
+            .addEventListener('click', () => {
+                document
+                    .getElementById('profile-photo-input')
+                    .click();
+            });
+
+        document
+            .getElementById('profile-photo-input')
+            .addEventListener('change', () => {
+                if (document
+                    .getElementById('profile-photo-input')
+                    .files && document
+                        .getElementById('profile-photo-input')
+                        .files[0]) {
+                    const reader = new FileReader();
+
+                    reader.onload = (e) => {
+                        document
+                            .getElementById('profile-image')
+                            .src = e.target.result;
+                    };
+
+                    reader.readAsDataURL(document
+                        .getElementById('profile-photo-input')
+                        .files[0]);
+                }
+            });
+
+        // Change password
+        document
+            .getElementById('change-password-btn')
+            .addEventListener('click', () => {
+                document
+                    .getElementById('change-password-modal')
+                    .classList.add('active');
+            });
+
+        document
+            .getElementById('change-password-form')
+            .addEventListener('submit', (e) => {
+                e.preventDefault();
+                // In a real app, we'd send this data to a server
+                document
+                    .getElementById('change-password-modal')
+                    .classList.remove('active');
+                alert('¡Contraseña cambiada con éxito!');
+            });
+
+        // Chat functionality
+        document
+            .getElementById('send-message')
+            .addEventListener('click', () => {
+                const messageInput = document.getElementById('chat-input');
+                const message = messageInput.value.trim();
+
+                if (message) {
+                    const chatContainer = document.getElementById('chat-messages');
+                    const now = new Date();
+                    const timeString =
+                        now.toLocaleDateString() +
+                        ' ' +
+                        now.getHours() +
+                        ':' +
+                        (now.getMinutes() < 10 ? '0' : '') +
+                        now.getMinutes();
+
+                    const newMessage = document.createElement('div');
+                    newMessage.className = 'chat-bubble user';
+                    newMessage.innerHTML = `
+            <div class="text-xs text-gray-300 mb-1">Tú • ${timeString}</div>
+            <div>${message}</div>
+          `;
+
+                    chatContainer.appendChild(newMessage);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    messageInput.value = '';
+                }
+            });
+
+        document
+            .getElementById('chat-input')
+            .addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('send-message').click();
+                }
+            });
+
+        // Maps initialization
+        function initMaps() {
+            // Home map
+            const homeMap = L.map('home-map').setView([19.5503, -97.1572], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+            }).addTo(homeMap);
+
+            // Add markers for demo reports
+            L.marker([19.5503, -97.1572])
+                .addTo(homeMap)
+                .bindPopup('Fuga de agua en Calle Morelos');
+
+            L.marker([19.5603, -97.1672])
+                .addTo(homeMap)
+                .bindPopup('Problemas con drenaje');
+
+            L.marker([19.5403, -97.1472])
+                .addTo(homeMap)
+                .bindPopup('Solicitud de instalación eléctrica');
+        }
+
+        function initDetailMap() {
+            // Detail map
+            const detailMap = L.map('detail-map').setView([19.5503, -97.1572], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+            }).addTo(detailMap);
+            L.marker([19.5503, -97.1572])
+                .addTo(detailMap)
+                .bindPopup('Fuga de agua en Calle Morelos')
+                .openPopup();
+        }
+
+        function initLocationMap() {
+            // Location selection map
+            const locationMap = L.map('location-map').setView([19.5503, -97.1572], 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+            }).addTo(locationMap);
+            const marker = L.marker([19.5503, -97.1572], { draggable: true })
+                .addTo(locationMap)
+                .bindPopup('Arrastre para seleccionar ubicación')
+                .openPopup();
+
+            locationMap.invalidateSize();
+        }
+
+        // Filter requests
+        document
+            .querySelectorAll('#filter-all, #filter-pending, #filter-progress, #filter-resolved')
+            .forEach((filter) => {
+                filter.addEventListener('click', () => {
+                    const filterType = filter.id.split('-')[1];
+                    // In a real app, we'd filter based on API data
+                    // For the prototype, just highlight the selected filter
+                    document
+                        .querySelectorAll('#filter-all, #filter-pending, #filter-progress, #filter-resolved')
+                        .forEach((btn) => {
+                            btn.classList.remove('bg-primary', 'text-white');
+                            btn.classList.add('bg-gray-200');
+                        });
+                    filter.classList.remove('bg-gray-200');
+                    filter.classList.add('bg-primary', 'text-white');
+                });
+            });
+    </script>
+    <script>
+    const menuToggle = document.getElementById("menu-toggle");
+    const sideNav = document.querySelector(".side-nav");
+
+    menuToggle.addEventListener("click", () => {
+        sideNav.classList.toggle("open");
+    });
+</script>
+</body>
+
+</html>
+resultado 
